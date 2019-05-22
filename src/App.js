@@ -2,15 +2,18 @@ import React from 'react';
 import Blog from './components/Blog';
 import LoginForm from './components/LoginForm';
 import CreatePostForm from './components/CreatePostForm';
+import Notification from './components/Notification';
 import blogService from './services/blogs';
 import loginService from './services/login';
+import Togglable from './components/Togglable';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       blogs: [],
-      error: null,
+      notification: null,
+      notificationType: '',
       username: '',
       password: '',
       user: null,
@@ -52,11 +55,13 @@ class App extends React.Component {
 
     } catch (exception) {
       this.setState({ 
-        error: 'Invalid username or password' 
+        notification: 'Invalid username or password',
+        notificationType: 'error'
       });
       setTimeout(() => {
         this.setState({
-          error: null
+          notification: null,
+          notificationType: ''
         })
       }, 5000);
     }
@@ -84,42 +89,52 @@ class App extends React.Component {
         blogs: this.state.blogs.concat(createdPost),
         title: '',
         author: '',
-        url: ''
-      });
-    } catch (exception) {
-      this.setState({ 
-        error: 'Invalid input' 
+        url: '',
+        notification: `Created post ${this.state.title}`,
+        notificationType: 'success'
       });
       setTimeout(() => {
         this.setState({ 
-          error: null 
+          notification: null,
+          notificationType: ''
+        });
+      }, 5000);
+    } catch (exception) {
+      this.setState({ 
+        notification: 'Invalid input',
+        notificationType: 'error'
+      });
+      setTimeout(() => {
+        this.setState({ 
+          notification: null,
+          notificationType: ''
         });
       }, 5000);
     }
 
   }
 
-  handleFieldChange = (name) => (event) => {  // Which is better?
-    this.setState({ [name]: event.target.value });
-  }
-
-  handleFieldsChange = (event) => {           // Which is better?
+  handleFieldChange = (event) => {
     this.setState({ [event.target.name]: event.target.value });
   }
 
-  render() {      // TODO: Notification component
+  render() {
     if (this.state.user === null) {
       return (
         <div>
         <h2>Log in</h2>
-        {this.state.error !== null ? <p>{this.state.error}</p> : null }
-        <LoginForm 
-          login={this.login}
-          username={this.state.username}
-          password={this.state.password}
-          handleNameChange={this.handleFieldChange("username")}
-          handlePasswordChange={this.handleFieldChange("password")}
+        <Notification 
+          message={this.state.notification} 
+          type={this.state.notificationType}
         />
+        <Togglable buttonLabel="Login">
+          <LoginForm 
+            handleSubmit={this.login}
+            username={this.state.username}
+            password={this.state.password}
+            handleChange={this.handleFieldChange}
+          />
+        </Togglable>
       </div>
     );
   }
@@ -129,6 +144,10 @@ class App extends React.Component {
           <p>Logged in as {this.state.user.name}</p>
           <button onClick={this.logout}>Logout</button>
           <h3>Create new post</h3>
+          <Notification 
+            message={this.state.notification} 
+            type={this.state.notificationType}
+          />
           <CreatePostForm 
             newPost={this.newPost}
             title={this.state.title}
