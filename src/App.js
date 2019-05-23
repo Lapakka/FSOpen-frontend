@@ -3,9 +3,10 @@ import Blog from './components/Blog';
 import LoginForm from './components/LoginForm';
 import CreatePostForm from './components/CreatePostForm';
 import Notification from './components/Notification';
+import Togglable from './components/Togglable';
 import blogService from './services/blogs';
 import loginService from './services/login';
-import Togglable from './components/Togglable';
+import userService from './services/users';
 
 class App extends React.Component {
   constructor(props) {
@@ -116,7 +117,7 @@ class App extends React.Component {
   updateLikes = async (id) => {
       try {
         const oldBlog = this.state.blogs.find(b => b._id === id);
-        console.log(oldBlog)
+        console.log(oldBlog.user)
         const updatedBlog = { ...oldBlog, likes: oldBlog.likes+1 };
         const likedBlog = await blogService.update(id, updatedBlog);
         const blogs = this.state.blogs.filter(b => b._id !== id);    // Filter out the old version of the blog item
@@ -136,6 +137,12 @@ class App extends React.Component {
           });
         }, 5000);
       }
+  }
+
+  getUserById = async (id) => {
+    const identifiedUser = await userService.getById(id);
+    console.log(identifiedUser, 'köfk')
+    return identifiedUser;
   }
 
   handleFieldChange = (event) => {
@@ -184,6 +191,7 @@ class App extends React.Component {
               key={blog._id} 
               blog={blog}
               updateLikes={this.updateLikes}
+              getUserById={this.getUserById}
             />
           )}
         </div>
