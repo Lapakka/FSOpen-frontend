@@ -35,7 +35,7 @@ class Blog extends React.Component {
           <div onClick={this.toggleVisibility}>
             {this.props.blog.title} {this.props.blog.author} <br />
             {this.props.blog.url} <br />
-            {this.props.blog.likes} <button onClick={this.toggleVisibility}>Like</button> <br />
+            {this.props.blog.likes} <button onClick={() => this.props.updateLikes(this.props.blog._id) }>Like</button> <br />
             Added by TODO
           </div>
         </div>

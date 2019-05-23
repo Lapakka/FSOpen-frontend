@@ -111,7 +111,31 @@ class App extends React.Component {
         });
       }, 5000);
     }
+  }
 
+  updateLikes = async (id) => {
+      try {
+        const oldBlog = this.state.blogs.find(b => b._id === id);
+        console.log(oldBlog)
+        const updatedBlog = { ...oldBlog, likes: oldBlog.likes+1 };
+        const likedBlog = await blogService.update(id, updatedBlog);
+        const blogs = this.state.blogs.filter(b => b._id !== id);    // Filter out the old version of the blog item
+        this.setState({
+          blogs: blogs.concat(likedBlog)
+        });
+      } 
+      catch (exception) {
+        this.setState({ 
+          notification: 'Blog item not found',
+          notificationType: 'error'
+        });
+        setTimeout(() => {
+          this.setState({ 
+            notification: null,
+            notificationType: ''
+          });
+        }, 5000);
+      }
   }
 
   handleFieldChange = (event) => {
@@ -151,12 +175,16 @@ class App extends React.Component {
           <CreatePostForm 
             newPost={this.newPost}
             title={this.state.title}
-            handleFieldChange={this.handleFieldsChange}
+            handleFieldChange={this.handleFieldChange}
             author={this.state.author}
             url={this.state.url}
           />
           {this.state.blogs.map(blog => 
-            <Blog key={blog._id} blog={blog}/>
+            <Blog 
+              key={blog._id} 
+              blog={blog}
+              updateLikes={this.updateLikes}
+            />
           )}
         </div>
       );
